@@ -23,5 +23,4 @@ This project implements a statistical arbitrage strategy by identifying cointegr
 Python, Pandas, NumPy, statsmodels, matplotlib
 
 ## Usage
-```pip install -r requirements.txt```
-Then follow the instructions in the integrated Python notebook.
+Use `pip install -r requirements.txt` in the terminal to install all required dependencies, then follow the instructions in the integrated Python notebook.

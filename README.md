@@ -14,8 +14,9 @@ This project implements a statistical arbitrage strategy by identifying cointegr
 ## Results
 | Metric | Value |
 |---|---|
-| Sharpe Ratio | 2.09 |
-| Max Drawdown | 1.7% | 
+| Sharpe Ratio | 2.208 |
+| Max Drawdown | 2.26% | 
+| Win Rate | 56.1% |
 | Backtest Period | 2020–2025 |
 
 ## Tech Stack

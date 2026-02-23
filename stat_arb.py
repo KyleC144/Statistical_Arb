@@ -150,7 +150,7 @@ class Strategy:
     def execute(self, threshold: float = 2.0):
         for pair in self.pairs:
             if pair.active:
-                if (pair.SELL and pair.z_score < 0) or (pair.BUY and pair.z_score > 0):
+                if (pair.SELL and ((pair.z_score < 0) or (pair.z_score > 3.5))) or (pair.BUY and ((pair.z_score > 0) or pair.z_score < -3.5)):
                     value = pair.exit()
                     self.balance += value
                     # self.stock_value -= value

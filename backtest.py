@@ -48,11 +48,3 @@ def calc_stats(strat: pd.DataFrame, n=252):
     stats["Average Loss"] = average_loss(strat)
     stats["Expected Value"] = expected_value(strat)
     return pd.DataFrame({"Stats": stats})
-
-def backtest(model, X_test, y_test, n=252):
-    preds = model(X_test).squeeze()
-    df = pd.DataFrame(np.array([preds.detach(), y_test]).T, columns = ["Predictions", "log_returns"])
-    df["Signal"] = (df["Predictions"] > 0) * 2 - 1
-    df["strat_ret"] = df["Signal"] * df["log_returns"]
-    plotStrat(df["strat_ret"])
-    return calc_stats(df["strat_ret"], n=n)

@@ -9,7 +9,7 @@ This project implements a statistical arbitrage strategy by identifying cointegr
 - Pair Selection: Augmented Dickey-Fuller (ADF) cointegration tests to identify statistically valid pairs
 - Signal Generation: Z-score of the spread; enter when |z| > 2.0, exit when |z| < 0.0
 - Risk Management: Position sizing based on percent of portfolio, stop-loss at |z| > 3.5
-- Transaction Costs: Modeled at X bps per trade to reflect realistic execution
+- Transaction Costs: Modeled at 50 bps per trade to reflect realistic execution, including spread, slippage, and fees at retail execution quality.
 
 ## Results
 | Metric | Value |

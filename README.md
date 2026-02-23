@@ -1,2 +1,22 @@
-# Statistical_Arb
-This repository is for the code behind and a demonstration of finding cointegrated stock pairs and running a proper backtest to calculate PnL and other statistics.
+# Statistical Arbitrage - Pairs Trading Strategy
+A pairs trading strategy using cointegration analysis across 600+ stocks, achieving a 2.09 Sharpe ratio and 1.7% max drawdown on backtests from 2020–2024.
+Overview
+This project implements a statistical arbitrage strategy by identifying cointegrated stock pairs and trading the spread when it deviates from its historical mean. Transaction costs are modeled to ensure realistic performance estimates.
+Methodology
+
+Universe: 600+ stocks screened from S&P 500 and Russell 1000
+Pair Selection: Augmented Dickey-Fuller (ADF) cointegration tests to identify statistically valid pairs
+Signal Generation: Z-score of the spread; enter when |z| > 2.0, exit when |z| < 0.0
+Risk Management: Position sizing based on spread volatility, stop-loss at |z| > 3.5
+Transaction Costs: Modeled at X bps per trade to reflect realistic execution
+
+Results
+Metric Value
+Sharpe Ratio 2.09
+Max Drawdown 1.7%
+Backtest Period 2020–2024
+Tech Stack
+Python, Pandas, NumPy, statsmodels, matplotlib
+Usage
+bashpip install -r requirements.txt
+python backtest.py

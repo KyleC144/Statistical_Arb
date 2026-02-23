@@ -24,3 +24,4 @@ Python, Pandas, NumPy, statsmodels, matplotlib
 
 ## Usage
 ```pip install -r requirements.txt```
+Then follow the instructions in the integrated Python notebook.

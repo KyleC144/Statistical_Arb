@@ -1,5 +1,5 @@
 # Statistical Arbitrage - Pairs Trading Strategy
-A pairs trading strategy using cointegration analysis across 600+ stocks, achieving a 2.09 Sharpe ratio and 1.7% max drawdown on backtests from 2020–2024.
+A pairs trading strategy using cointegration analysis across 600+ stocks, achieving a 2.20 Sharpe ratio and 2.26% max drawdown on backtests from 2020–2025.
 
 ## Overview
 This project implements a statistical arbitrage strategy by identifying cointegrated stock pairs and trading the spread when it deviates from its historical mean. Transaction costs are modeled to ensure realistic performance estimates.

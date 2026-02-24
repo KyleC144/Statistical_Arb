@@ -147,10 +147,10 @@ class Strategy:
         self.value = self.balance + self.stock_value
         self.value_history.append(self.value)
     
-    def execute(self, threshold: float = 2.0):
+    def execute(self, threshold: float = 2.0, stop_loss = 3.5):
         for pair in self.pairs:
             if pair.active:
-                if (pair.SELL and ((pair.z_score < 0) or (pair.z_score > 3.5))) or (pair.BUY and ((pair.z_score > 0) or pair.z_score < -3.5)):
+                if (pair.SELL and ((pair.z_score < 0) or (pair.z_score > stop_loss))) or (pair.BUY and ((pair.z_score > 0) or pair.z_score < -stop_loss)):
                     value = pair.exit()
                     self.balance += value
                     # self.stock_value -= value
@@ -161,7 +161,7 @@ class Strategy:
                     pair.buy(self.balance * self.upp, self.t_costs)
 
 # this function will run the extensive backtest calculating PnL and return the log returns of the equity curve
-def stat_arb_backtest(data, stock_pairs, n = 50, initial_balance=10000, t_costs=0.001, leverage=1, z_entry: float = 2.0) -> pd.DataFrame:
+def stat_arb_backtest(data, stock_pairs, n = 50, initial_balance=10000, t_costs=0.001, leverage=1, z_entry: float = 2.0, stop_loss =3.5, start_date = "1-1-2020", end_date = "1-1-2021") -> pd.DataFrame:
     # this will get all of the stock pairs for the backtest
     pairs = stock_pairs[["Stock1", "Stock2"]].to_numpy().tolist()
 
@@ -190,12 +190,14 @@ def stat_arb_backtest(data, stock_pairs, n = 50, initial_balance=10000, t_costs=
     # Loop over all timsteps in the backtest and update the prices and z_scores, then execute the strategy.
     zscores.fillna(0, inplace=True)
     stocks_df: pd.DataFrame = pd.concat(stocks_dict, axis=1).fillna(0)
+    zscores = zscores[(zscores.index > start_date) & (zscores.index < end_date)]
+    stocks_df = stocks_df[(stocks_df.index > start_date) & (stocks_df.index < end_date)]
     for i in range(len(stocks_df)):
         class_strat.update(zscores.iloc[i].to_dict(), stocks_df.iloc[i])
-        class_strat.execute(z_entry)
+        class_strat.execute(z_entry, stop_loss)
 
     # get the PnL of each stock pair.
-    temp_df = pd.DataFrame(index=data.index)
+    temp_df = pd.DataFrame(index=zscores.index)
     for pair in class_strat.pairs:
         temp_df[f"{pair}"] = np.array(pair.history)
 
@@ -228,13 +230,29 @@ def do_reg(data, stock1, stock2):
     
 # this function will take a DataFrame of time series stock prices and return a DataFrame of all stock pairs 
 # that are coorilated along with their cointegration test results.
-def get_pairs(data: pd.DataFrame):
+def get_pairs(data: pd.DataFrame, start_date, end_date):
+    data = data[(data.index > start_date) & (data.index < end_date)]
     df_comb = pd.DataFrame(combinations(data.columns, 2), columns=["Stock1", "Stock2"])
     df_comb["corr"] = df_comb.apply(lambda row: np.corrcoef(data[row["Stock1"]], data[row["Stock2"]])[0,1], axis=1)
     df_comb = df_comb[df_comb["corr"] > 0.95]
     df_comb[["adf", "p_value", "beta", "alpha"]] = df_comb.apply(lambda row: pd.Series(do_reg(data, row["Stock1"], row["Stock2"])), axis=1)
     return df_comb
 
+def combined_backtest(data: pd.DataFrame, start_year: int, end_year: int, num_years: int, lag_years: int, num_stocks: int, 
+                      n: int, z_entry: float, stop_loss: float, t_costs: float = 0.0025, leverage: float = 1):
+    log_returns = None
+    for i in range(num_years):
+        comb_df = get_pairs(data, start_date = f"1-1-{start_year - lag_years + i}", end_date = f"1-1-{start_year + i}")
+        stock_pairs =  comb_df.sort_values(by="adf").head(num_stocks)
+        if log_returns is None:
+            log_returns = stat_arb_backtest(data, stock_pairs, n=n, leverage=leverage, t_costs=t_costs, z_entry=z_entry, stop_loss=stop_loss, 
+                                                    start_date = f"1-1-{start_year + i}", end_date = f"1-1-{end_year + i}")
+        else:
+            log_returns = pd.concat([log_returns, stat_arb_backtest(data, stock_pairs, n=n, leverage=leverage, t_costs=t_costs, 
+                                                                            z_entry=z_entry, stop_loss=stop_loss, 
+                                                                            start_date = f"1-1-{start_year + i}",
+                                                                            end_date = f"1-1-{end_year + i}")])
+    return log_returns
 def main():
     pass
 

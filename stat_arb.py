@@ -238,6 +238,7 @@ def get_pairs(data: pd.DataFrame, start_date, end_date):
     df_comb[["adf", "p_value", "beta", "alpha"]] = df_comb.apply(lambda row: pd.Series(do_reg(data, row["Stock1"], row["Stock2"])), axis=1)
     return df_comb
 
+# this function will combine everything and do an extensive backtest without any lookahead bias.
 def combined_backtest(data: pd.DataFrame, start_year: int, end_year: int, num_years: int, lag_years: int, num_stocks: int, 
                       n: int, z_entry: float, stop_loss: float, t_costs: float = 0.0025, leverage: float = 1):
     log_returns = None

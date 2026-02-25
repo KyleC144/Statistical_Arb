@@ -3,6 +3,7 @@ import numpy as np
 from itertools import combinations
 import statsmodels.api as sm
 from statsmodels.tsa.stattools import adfuller
+import backtest
 
 class Stock:
     """
@@ -135,6 +136,8 @@ class Strategy:
         self.value = self.stock_value + self.balance
         self.value_history = []
         self.t_costs = t_costs
+        self.num_closed_trades = 0
+        self.num_wins = 0
 
     def addPair(self, pair: Pair):
         self.pairs.append(pair)
@@ -246,14 +249,14 @@ def combined_backtest(data: pd.DataFrame, start_year: int, end_year: int, num_ye
         comb_df = get_pairs(data, start_date = f"1-1-{start_year - lag_years + i}", end_date = f"1-1-{start_year + i}")
         stock_pairs =  comb_df.sort_values(by="adf").head(num_stocks)
         if log_returns is None:
-            log_returns = stat_arb_backtest(data, stock_pairs, n=n, leverage=leverage, t_costs=t_costs, z_entry=z_entry, stop_loss=stop_loss, 
+            log_returns, stats = stat_arb_backtest(data, stock_pairs, n=n, leverage=leverage, t_costs=t_costs, z_entry=z_entry, stop_loss=stop_loss, 
                                                     start_date = f"1-1-{start_year + i}", end_date = f"1-1-{end_year + i}")
         else:
-            log_returns = pd.concat([log_returns, stat_arb_backtest(data, stock_pairs, n=n, leverage=leverage, t_costs=t_costs, 
-                                                                            z_entry=z_entry, stop_loss=stop_loss, 
-                                                                            start_date = f"1-1-{start_year + i}",
-                                                                            end_date = f"1-1-{end_year + i}")])
-    return log_returns
+            temp, stats = stat_arb_backtest(data, stock_pairs, n=n, leverage=leverage, t_costs=t_costs, z_entry=z_entry, 
+                                            stop_loss = stop_loss, start_date = f"1-1-{start_year + i}", end_date = f"1-1-{end_year + i}")
+            log_returns = pd.concat([log_returns, temp])
+    backtest.plotStrat(log_returns)
+    return backtest.calc_stats(log_returns)
 def main():
     pass
 
